@@ -1,0 +1,105 @@
+#!/bin/ksh
+
+#
+# checkyesno var
+#	Test $1 variable,
+#	returning 0 if it's yes (and friends),
+#	1 if it's no (and friends),
+#	and 2 otherwise.
+#
+checkyesno() {
+	local var
+	eval "var=\$$1"
+
+	case $var in
+		[Yy][Ee][Ss])
+			return 0
+			;;
+		[Tt][Rr][Uu][Ee])
+			return 0
+			;;
+		1)
+			return 0
+			;;
+		[Nn][Oo])
+			return 1
+			;;
+		[Ff][Aa][Ll][Ss][Ee])
+			return 1
+			;;
+		0)
+			return 1
+			;;
+		*)
+			return 2
+			;;
+	esac
+}
+
+#
+# log message ...
+#	Log message to stderr.
+#
+log() {
+	print -ru2 "$0:  log: $*"
+}
+
+#
+# warn message ...
+#	Log warning message to stderr.
+#
+warn() {
+	print -ru2 "$0: warn: $*"
+}
+
+#
+# err exitval message ...
+#	Log error message to stderr and exit with exitval,
+#	similar to C function errx(3).
+#
+err() {
+	exitval=$1
+	shift
+
+	print -ru2 "$0:  err: $*"
+	exit $exitval
+}
+
+#
+# load_sf_config svc
+#	Load sf.conf if not done already,
+#	then load /etc/sf.conf.d/$svc if it exists.
+#
+load_sf_config() {
+	local svc
+	svc=$1
+
+	$_sf_conf_loaded . /etc/sf.conf
+
+	if [ -f /etc/sf.conf.d/"$svc" ]; then
+		. /etc/sf.conf.d/"$svc"
+	fi
+}
+
+#
+# control_var var
+#	Meant to be called in the `run' script of a runit service directory.
+#	Stop the runsv instance and exit if variable $1 is not set to yes
+#	(and friends), otherwise pull in config.
+#
+control_var() {
+	if checkyesno $1; then
+		load_sf_config $1
+	else
+		sv exit .
+		exit 0
+	fi
+}
+
+#
+# sf_run
+#	Meant to be called in the `run' script of a runit service directory.
+#
+#
+sf_run() {
+}

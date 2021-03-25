@@ -1,0 +1,9 @@
+#!/bin/sh
+
+. /etc/sf.subr
+
+name='testd'
+command="/home/frey/bin/$name"
+fg_flag='-D'
+
+sf_run
