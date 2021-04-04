@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/ksh
 
 . /etc/sf.subr
 
-name='testd'
+name='hellod'
 command="/home/frey/bin/$name"
 fg_flag='-D'
+required_files=''
 
-sf_run
+sf_cmd $1

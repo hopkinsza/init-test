@@ -1,27 +1,27 @@
-#!/bin/mksh
+#!/bin/ksh
 # vim: syntax=sh
 
 . /etc/sf.subr
 
-log () {
-	print -ru2 "$*"
-}
-
-if [ $# -ne 2 ]; then
-	log 'wrong number of args: expected 2'
-	exit 1
+if [[ $# -ne 2 ]]; then
+	err 2 'wrong number of args: expected 2'
 fi
 
-case $1 in
-	status)
-		x=`sv status /libexec/sf.d/$2`
-		if [ $? -eq 0 ]; then
-			log "$x"
-		else
-			log 'not running'
-		fi
-		;;
-	*)
-		log "$1 unimplemented"
-		;;
-esac
+cmd=$1
+svc=$2
+
+/etc/sf.d/"$svc" "$cmd"
+
+#case $1 in
+#	status)
+#		x=`sv status /libexec/sf.d/$2`
+#		if [ $? -eq 0 ]; then
+#			log "$x"
+#		else
+#			log 'not running'
+#		fi
+#		;;
+#	*)
+#		log "$1 unimplemented"
+#		;;
+#esac
