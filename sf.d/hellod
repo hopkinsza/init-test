@@ -3,7 +3,7 @@
 . /etc/sf.subr
 
 name='hellod'
-command="/home/frey/bin/$name"
+cmd="/home/frey/bin/$name"
 fg_flag='-D'
 required_files=''
 

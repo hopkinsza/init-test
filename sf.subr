@@ -61,28 +61,25 @@ warn() {
 }
 
 #
-# err exitval message ...
-#	Log error message to stderr and exit with exitval,
+# err status message ...
+#	Log error message to stderr and exit with status,
 #	similar to C function errx(3).
 #
 err() {
-	local e=$1
+	local e
+	e=$1
 	shift
 
 	print -ru2 "$0: error $e: $*"
-	exit $exitval
+	exit $e
 }
 
 #
-# load_sf_config svc
-#	Load sf.conf if not done already,
-#	then load /etc/sf.conf.d/$svc if it exists.
+# load_sf_confd svc
+#	Load /etc/sf.conf.d/$svc if it exists.
 #
-load_sf_config() {
-	local svc
-	svc=$1
-
-	$_sf_conf_loaded . /etc/sf.conf
+load_sf_confd() {
+	local svc=$1
 
 	if [[ -f /etc/sf.conf.d/"$svc" ]]; then
 		. /etc/sf.conf.d/"$svc"
@@ -90,22 +87,7 @@ load_sf_config() {
 }
 
 #
-# control_var var
-#	Meant to be called in the `run' script of a runit service directory.
-#	Stop the runsv instance and exit if variable $1 is not set to yes
-#	(and friends), otherwise pull in config.
-#
-control_var() {
-	if checkyesno $1; then
-		load_sf_config $1
-	else
-		sv exit .
-		exit 0
-	fi
-}
-
-#
-# sf_cmd cmd
+# sf_cmd sc
 #	Run the command.
 #	Expects the following variables to be set:
 #	  name, command
@@ -113,25 +95,27 @@ control_var() {
 #	  fg_flag, required_files
 #
 sf_cmd() {
-	local cmd=$1
+	local sc=$1
 	local nameval
 
-	load_sf_config
+	. /etc/sf.conf
 
 	checkyesno "$name"
 	e=$?
 	if [[ $e -eq 1 ]]; then
-		warn "$name is disabled, not doing anything. See sf.conf(5)."
+		log "$name is disabled, not doing anything. See sf.conf(5)."
 		exit 0
 	elif [[ $e -gt 1 ]]; then
 		eval "nameval=\$$name"
 		err 2 "Config variable $name not set properly: \`$nameval'. See sf.conf(5)."
 	fi
 
-	case "$cmd" in
+	load_sf_confd "$name"
+
+	case "$sc" in
 	start)
 		log "starting $name"
-		fakefsv $command
+		log $cmd
 		;;
 	stop)
 		log "stopping $name"
@@ -140,7 +124,7 @@ sf_cmd() {
 		log "restarting $name"
 		;;
 	*)
-		warn "$cmd not yet implemented"
+		warn "$sc not yet implemented"
 		;;
 	esac
 }

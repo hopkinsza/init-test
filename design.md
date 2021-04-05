@@ -3,7 +3,7 @@ rift linux init
 
 rift is a very light & simple linux distribution.
 
-Its init is inspired by the NetBSD init and runit.
+Its init is heavily inspired by NetBSD.
 
 
 sf
