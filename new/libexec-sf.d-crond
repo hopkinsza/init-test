@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cmd=/usr/sbin/crond
+fg_f='-f'
+log_f='-d0'

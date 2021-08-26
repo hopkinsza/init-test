@@ -1,0 +1,36 @@
+#!/bin/mksh
+# vim: syntax=sh
+
+. /etc/sf.conf
+set -o errexit
+
+function err {
+	typeset e=$1
+	shift
+
+	print -u2 "err: $@"
+	exit $e
+	exit 1
+}
+
+cd /libexec/sf.d
+
+if [[ $# -ne 2 ]]; then
+	err 2 'wrong number of args: expected 2'
+fi
+
+cmd=$1
+svc=$2
+
+if [[ $1 != 'start' ]]; then
+	err 1 'unimplemented'
+fi
+
+if [[ ! -x $2 ]]; then
+	err 1 "'$2' not found or not executable"
+fi
+
+eval "flags=\"\$${cmd}_flags\""
+. ./$2
+fsv -- $cmd $flags $fg_f $log_f &
+exit 0
